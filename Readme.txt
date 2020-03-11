@@ -1,0 +1,8 @@
+- mainwindow.ui： qt界面设计文件
+- mianwindow.py：ui文件生成的界面代码
+- ui.ps1: powershell脚本，将ui文件生成py文件并处理转换错误
+- mian.py : 主文件
+- CharucoBoard.py: 标定板模块
+- CameraGroup.py: 相机参数结构体
+- Calib.py: 标定模块
+- test.py: 随便测试代码用的文件 
