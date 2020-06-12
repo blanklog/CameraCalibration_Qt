@@ -14,11 +14,17 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">QTabWidget{background-color: rgb(228, 228, 225);}</string>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_calib">
        <attribute name="title">
@@ -90,7 +96,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,5">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,5">
           <property name="topMargin">
            <number>6</number>
           </property>
@@ -108,14 +114,17 @@
               <height>60</height>
              </size>
             </property>
+            <attribute name="horizontalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>140</number>
+            </attribute>
             <attribute name="horizontalHeaderMinimumSectionSize">
              <number>100</number>
             </attribute>
-            <attribute name="horizontalHeaderDefaultSectionSize">
-             <number>100</number>
-            </attribute>
             <attribute name="verticalHeaderDefaultSectionSize">
-             <number>60</number>
+             <number>40</number>
             </attribute>
            </widget>
           </item>
@@ -161,17 +170,17 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_3">
+          <item row="1" column="4">
+           <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>print_width:</string>
+             <string>print_height(cm):</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="6">
-           <widget class="QLabel" name="label_5">
+          <item row="0" column="4">
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Dict:</string>
+             <string>print_width(cm):</string>
             </property>
            </widget>
           </item>
@@ -182,22 +191,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="5">
-           <widget class="QLineEdit" name="lineEdit_squareSize">
-            <property name="text">
-             <string>2.5</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="7">
+          <item row="0" column="9">
            <widget class="QComboBox" name="comboBox_dict"/>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>squareSize</string>
-            </property>
-           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_6">
@@ -213,38 +208,52 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_7">
+          <item row="0" column="8">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>print_height:</string>
+             <string>Dict:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
+          <item row="1" column="5">
            <widget class="QLineEdit" name="lineEdit_printY">
             <property name="text">
              <string>21</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="4">
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>squareSize(cm):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="QLineEdit" name="lineEdit_printX">
+            <property name="text">
+             <string>29.7</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="lineEdit_squareSize">
+            <property name="text">
+             <string>2.5</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>DPI:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="5">
+          <item row="1" column="3">
            <widget class="QLineEdit" name="lineEdit_DPI">
             <property name="text">
              <string>96</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLineEdit" name="lineEdit_printX">
-            <property name="text">
-             <string>29.7</string>
             </property>
            </widget>
           </item>
@@ -273,11 +282,31 @@
         </item>
         <item>
          <widget class="QLabel" name="label">
+          <property name="styleSheet">
+           <string notr="true">QTabWidget::tab{background-color: rgb(238, 238, 0);}</string>
+          </property>
           <property name="text">
            <string/>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_camera">
+       <attribute name="title">
+        <string>Camera</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,2">
+        <item>
+         <widget class="QListView" name="listView_Camera"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_showCamera">
+          <property name="text">
+           <string>TextLabel</string>
           </property>
          </widget>
         </item>
@@ -293,7 +322,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>28</height>
     </rect>
    </property>
   </widget>

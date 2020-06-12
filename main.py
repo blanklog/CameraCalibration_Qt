@@ -1,20 +1,21 @@
 
+#Qt
 from PySide2.QtWidgets import QApplication, QMainWindow,QFileDialog
-from PySide2.QtCore import Slot,QSize
-from PySide2.QtGui import QImage,QPixmap,QStandardItemModel,QStandardItem,QIcon
-
+from PySide2.QtCore import Slot,QSize,QStringListModel
+from PySide2.QtGui import QImage,QPixmap,QStandardItemModel,QStandardItem
 from mainwindow import Ui_MainWindow
+#python
 import sys
 import os.path
-
+#cv
 import cv2 as cv
+#custom
 import CharucoBoard
 import CameraGroup
+import ChessBoard
+import Calib
 
-
-dicts=['DICT_4X4_50','DICT_4X4_100','DICT_4X4_250','DICT_4X4_1000','DICT_5X5_50','DICT_5X5_100','DICT_5X5_250','DICT_5X5_1000','DICT_6X6_50','DICT_6X6_100','DICT_6X6_250'
-,'DICT_6X6_1000','DICT_7X7_50','DICT_7X7_100','DICT_7X7_250','DICT_7X7_1000','DICT_ARUCO_ORIGINAL','DICT_APRILTAG_16h5','DICT_APRILTAG_25h9','DICT_APRILTAG_36h10','DICT_APRILTAG_36h11']
-
+dicts=["chessBoard"]+CharucoBoard.dicts
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -31,13 +32,21 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_saveParameter.clicked.connect(self.saveParameter)
         self.ui.pushButton_output.clicked.connect(self.saveCameraGroup)
         self.ui.pushButton_clear.clicked.connect(self.clearGroup)
+        self.ui.listView_Camera.clicked.connect(self.showCamera)
         #property
-        self.model = QStandardItemModel()
+        self.model = QStandardItemModel()             #tab 1
+        self.cameraListModel=QStringListModel()       #tab 2
+        self.cameraLists=[]
+        self.ui.listView_Camera.setModel(self.cameraListModel)
+
         self.caliber=None
         self.cameraGroup = CameraGroup.CameraGroup()
 
+
         #other
         self.calibBoard=CharucoBoard.ChessBoard()
+        self.board=None
+        self.boardType=0
 
 
 
@@ -46,24 +55,34 @@ class MainWindow(QMainWindow):
 
     @Slot()     #CreateBoard
     def createBoard(self):
-        self.calibBoard = CharucoBoard.CharucoBoard()
+        dict = self.ui.comboBox_dict.currentIndex()
         numX=int(self.ui.lineEdit_numX.text())
         numY=int(self.ui.lineEdit_numY.text())
-        dict=self.ui.comboBox_dict.currentIndex()
         squareSize=float(self.ui.lineEdit_squareSize.text())
+        dpi = int(self.ui.lineEdit_DPI.text())
         imgSize=(float(self.ui.lineEdit_printX.text()),float(self.ui.lineEdit_printY.text()))
-        dpi=int(self.ui.lineEdit_DPI.text())
-        self.board = self.calibBoard.create(numX,numY,dict,squareSize,imgSize,dpi)   #Create Board
+        if dict ==0:
+            self.boardType=0
+            self.calibBoard = ChessBoard.ChessBoard()
+            self.board = self.calibBoard.create((numX, numY),squareSize, dpi,imgSize)  # Create Board
+        else:
+            self.boardType=1
+            self.calibBoard = CharucoBoard.CharucoBoard()
+            self.board = self.calibBoard.create(numX,numY,dict-1,squareSize,imgSize,dpi)   #Create Board
+
         if self.board is None:                                                    ## splite Qt segment
             self.ui.label.setText("Create Failed,Please confire parameter!")
-        image = QImage(self.board[:], self.board.shape[1], self.board.shape[0], self.board.shape[1], QImage.Format_Grayscale8)
-        showBoard=QPixmap(image)
-        if showBoard.width()>showBoard.height():
+            return
+
+        # showBoard
+        image = QImage(self.board[:], self.board.shape[1], self.board.shape[0], self.board.shape[1], QImage.Format_Grayscale8)  #ndarray -> QImage
+        showBoard=QPixmap(image)                                                                                                #QImage ->  Qpixmap
+        if showBoard.width()>showBoard.height():                                                                                #resize Qpixmap
             showBoard=showBoard.scaledToWidth(self.ui.label.width())
         else:
             showBoard=showBoard.scaledToHeight(self.ui.label.height())
-        self.ui.label.setPixmap(showBoard)
-        #cv.imshow("2",self.board)
+        self.ui.label.setPixmap(showBoard)                                                                                      #show
+
 
 
     @Slot()  #SaveBoard
@@ -100,7 +119,10 @@ class MainWindow(QMainWindow):
         n=self.model.rowCount()
         if n==0:return
         # strictDetection=2 if self.ui.checkBox_strick.isChecked() else 1
-        self.caliber=CharucoBoard.Calib(self.ui.comboBox_detectType.currentIndex(),self.ui.checkBox_isFish.isChecked(),self.calibBoard)
+
+        calibType=self.ui.comboBox_detectType.currentIndex()
+        isFisheLen=self.ui.checkBox_isFish.isChecked()
+        self.caliber=Calib.Calib(calibType,isFisheLen,self.calibBoard)
         path = self.model.item(0, 0).data()                   #directionary related
         self.cacheDir=os.path.dirname(path)+'/DetectCache'
         if not os.path.exists(self.cacheDir):
@@ -122,19 +144,38 @@ class MainWindow(QMainWindow):
         for i in range(len(validIndex)):                   #each image reproject erro
             erro=self.caliber.calcProjectErro(i)
             self.model.item(validIndex[i],1).setText(str(erro))
+
+
     @Slot()
     def saveParameter(self):
+        if self.caliber is None : return
         self.cameraGroup.cameras.append(self.caliber.getCameraParameter())
-        self.ui.pushButton_saveParameter.setText('save('+str(len(self.cameraGroup.cameras))+')')
+        id=str(len(self.cameraGroup.cameras))
+        self.ui.pushButton_saveParameter.setText('save('+id+')')
+        self.cameraLists.append('Camera '+id)
+        self.cameraListModel.setStringList(self.cameraLists)
+
+
 
     @Slot()
     def saveCameraGroup(self):
-        name=QFileDialog.getSaveFileName(self,'Save Board','../',"Image (*.yml)")
+        name=QFileDialog.getSaveFileName(self,'Save Paramter','../',"config (*.yml)")
         self.cameraGroup.saveToFile(name[0])
+        self.cameraLists.clear()
+        self.cameraListModel.setStringList(self.cameraLists)
+
+        ##self.cameraListModel.insertRow()
     @Slot()
     def clearGroup(self):
         self.cameraGroup.cameras=[]
         self.ui.pushButton_saveParameter.setText('save(0)')
+        self.cameraListModel.setStringList([])
+    @Slot()
+    def showCamera(self,index):
+        cam=self.cameraGroup[index.row()]
+        self.ui.label_showCamera.setText(str(cam))
+        cam.plot()
+
 
 
 

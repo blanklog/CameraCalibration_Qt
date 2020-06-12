@@ -12,7 +12,13 @@ class  ChessBoard():
         self.squareSize=2.5
         self.printSize=(29.7,21)
         self.dpi=96
-    def create(self):
+    def create(self,parternSize,squareSize,dpi,imageSize):
+        self.partternSize = parternSize
+        self.squareSize = squareSize
+        self.printSize = imageSize
+        self.dpi = dpi
+        return self.print()
+    def print(self):
         dpi=self.dpi/2.54
         suqrelen=int(dpi*self.squareSize)
         imageSize=(int(self.printSize[0]*dpi),int(self.printSize[1]*dpi))
