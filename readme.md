@@ -1,4 +1,4 @@
-Camera calibration program base on OpenCV.   A tool.
+Camera calibration program base on OpenCV.   A tool. It can calibrate fisheye Lens with charUco chess board and normal chess board.
 
 ## Manual
 
